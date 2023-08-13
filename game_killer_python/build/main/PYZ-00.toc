@@ -1,4 +1,5 @@
-('D:\\pid\\build\\main\\PYZ-00.pyz',
+('D:\\Pelmeshka\\OneDrive - ITMO '
+ 'UNIVERSITY\\Webkill\\Game_killer\\game_killer_python\\build\\main\\PYZ-00.pyz',
  [('__future__',
    'C:\\Users\\Pelmeshka\\AppData\\Local\\Programs\\Python\\Python311\\Lib\\__future__.py',
    'PYMODULE'),

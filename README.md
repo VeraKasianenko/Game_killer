@@ -8,6 +8,5 @@
     - поддерживает Windows 7 и выше
     - есть .exe формат и .jar формат
     - может потребоваться установка <a href="https://www.oracle.com/java/technologies/javase/javase8-archive-downloads.html">JRE</a>
-- на <a href="https://github.com/VeraKasianenko/Game_killer/tree/main/game_killer_python/dist">Python</a>
+- на <a href="https://github.com/VeraKasianenko/Game_killer/tree/main/game_killer_python">Python</a>
     - только Windows 10 и выше
-    - кроме .exe файла необходимо скачать всю папку `dist` для работы приложения
