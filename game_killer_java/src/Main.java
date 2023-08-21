@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.io.*;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Класс Main содержит главный метод программы, который запускает игру Assassin's Creed II,
@@ -14,59 +14,70 @@ public class Main {
      *
      * @param args аргументы командной строки (не используются)
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+        // Путь к файлу date.txt
+        String filePath = "date_ac2.txt";
+
+        // Проверяем, существует ли файл
+        File file = new File(filePath);
+        boolean fileExists = file.exists();
+
+        // Если файл не существует, создаем его и записываем текущую дату
+        if (fileExists) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+                String storedDate = reader.readLine();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String currentDate = dateFormat.format(new Date());
+                if (currentDate.equals(storedDate)) {
+                    JOptionPane.showMessageDialog(null, "На сегодня доступ запрещен", "Ошибка", JOptionPane.ERROR_MESSAGE);
+                    System.exit(0);
+
+                }
+            }
+        }
+
+        try (PrintWriter writer = new PrintWriter(filePath)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String currentDate = dateFormat.format(new Date());
+            writer.println(currentDate);
+        }
+
+        // Список процессов, которые будут завершены после окончания работы игры
+        String[] processes = {"AssassinsCreedIIGame.exe", "UbisoftGameLauncher.exe", "upc.exe", "UplayWebCore.exe", "steam.exe", "steamwebhelper.exe"};
+
+        // Время, в течение которого игра может работать (20 минут)
+        int countdownTime = 20 * 60;
+
         try {
-            File lockFile = new File("app.lock");
-            RandomAccessFile randomAccessFile = new RandomAccessFile(lockFile, "rw");
-            FileChannel channel = randomAccessFile.getChannel();
+            // Запуск Steam
+            Runtime.getRuntime().exec("C:\\Program Files (x86)\\Steam\\steam.exe");
+            Thread.sleep(15000);
+            // Запуск Assassin's Creed II
+            Runtime.getRuntime().exec("D:\\SteamLibrary\\steamapps\\common\\Assassin's Creed 2\\AssassinsCreedIIGame.exe");
+            Thread.sleep(15000);
 
-            FileLock lock = channel.tryLock();
-            if (lock == null) {
-                // Если блокировку не удалось получить, приложение уже запущено
-                JOptionPane.showMessageDialog(null, "Доступ на сегодня закончился", "Ошибка", JOptionPane.ERROR_MESSAGE);
-                channel.close();
-                randomAccessFile.close();
-                System.exit(1);
+            // Отсчет времени работы игры
+            while (countdownTime > 0) {
+                Thread.sleep(1000);
+                countdownTime--;
             }
-            // Список процессов, которые будут завершены после окончания работы игры
-            String[] processes = {"AssassinsCreedIIGame.exe", "UbisoftGameLauncher.exe", "upc.exe", "UplayWebCore.exe", "steam.exe", "steamwebhelper.exe"};
 
-            // Время, в течение которого игра может работать (40 минут)
-            int countdownTime = 40 * 60;
-
-            try {
-                // Запуск Steam
-                Runtime.getRuntime().exec("C:\\Program Files (x86)\\Steam\\steam.exe");
-                Thread.sleep(15000);
-                // Запуск Assassin's Creed II
-                Runtime.getRuntime().exec("D:\\SteamLibrary\\steamapps\\common\\Assassin's Creed 2\\AssassinsCreedIIGame.exe");
-                Thread.sleep(15000);
-
-                // Отсчет времени работы игры
-                while (countdownTime > 0) {
-                    Thread.sleep(1000);
-                    countdownTime--;
-                }
-
-                // Завершение процессов игры и связанных с ней приложений
-                for (String process : processes) {
-                    findAndTerminateProcess(process);
-                }
-
-                // Вывод сообщения о завершении работы игры
-                UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-                JFrame frame = new JFrame();
-                frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                JOptionPane optionPane = new JOptionPane("Время работы игры истекло", JOptionPane.INFORMATION_MESSAGE);
-                JDialog dialog = optionPane.createDialog(frame, "Сообщение");
-                dialog.setIconImage(null);
-                dialog.setVisible(true);
-
-            } catch (Exception e) {
-                e.printStackTrace();
+            // Завершение процессов игры и связанных с ней приложений
+            for (String process : processes) {
+                findAndTerminateProcess(process);
             }
+
+            // Вывод сообщения о завершении работы игры
+            UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+            JFrame frame = new JFrame();
+            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            JOptionPane optionPane = new JOptionPane("Время работы игры истекло", JOptionPane.INFORMATION_MESSAGE);
+            JDialog dialog = optionPane.createDialog(frame, "Сообщение");
+            dialog.setIconImage(null);
+            dialog.setVisible(true);
+
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "На сегодня доступ запрещен", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
         }
     }
 
